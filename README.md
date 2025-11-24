@@ -385,9 +385,7 @@ This project is licensed under the **MIT License** - see the LICENSE file for de
 ### 🛠️ Get Support
 | Method | Link |
 |--------|------|
-| **GitHub Issues** | [Create an Issue](https://github.com/your-repo/issues) |
-| **Documentation** | [View Docs](https://docs.your-repo.com) |
-| **Discussions** | [Join Discussion](https://github.com/your-repo/discussions) |
+| **GitHub Issues** | [Create an Issue](https://github.com/DeepanshuParakh29/Nutritional_ChatBot/issues) |
 
 ### 📧 Reach Out
 - 🐛 **Bug Reports**: Create an issue on GitHub
