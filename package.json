@@ -5,12 +5,23 @@
   "main": "api/chat.py",
   "scripts": {
     "dev": "python app.py",
-    "start": "python api/chat.py"
+    "start": "python api/chat.py",
+    "deploy": "wrangler deploy",
+    "preview": "wrangler dev"
   },
-  "keywords": ["chatbot", "nutrition", "ayurveda", "health", "food"],
+  "keywords": [
+    "chatbot",
+    "nutrition",
+    "ayurveda",
+    "health",
+    "food"
+  ],
   "author": "Your Name",
   "license": "MIT",
   "engines": {
     "python": "3.9.x"
+  },
+  "devDependencies": {
+    "wrangler": "^4.68.1"
   }
 }
