@@ -5,15 +5,82 @@
   <meta charset="utf-8">
   <title>Nutrition & Ayurveda Chat</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="AI-powered nutritional and Ayurvedic chatbot for Indian foods">
   <link href="./styles.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
   <div class="chat-container">
-    <div class="chat-header">Nutrition & Ayurveda Assistant</div>
-    <div id="chat" class="chat-stream"></div>
-    <div class="chat-input">
-      <input id="msg" type="text" placeholder="Ask about grains, lentils, Ayurveda...">
-      <button id="send">Send</button>
+    <div class="chat-header">
+      <div class="brand">
+        <span class="logo">🌿</span>
+        <div>
+          <span class="title">Nutrition & Ayurveda Assistant</span>
+          <div class="subtitle">Your AI-powered health companion</div>
+        </div>
+      </div>
+      <div class="actions">
+        <select id="lang" class="select small" title="Language">
+          <option value="en">🇺🇸 English</option>
+          <option value="hi">🇮🇳 हिंदी</option>
+        </select>
+        <label class="toggle small" title="Auto-send recognized speech">
+          <input id="autoSend" type="checkbox" checked>
+          <span>🎤 Auto-send</span>
+        </label>
+        <button id="themeToggle" class="btn small" title="Toggle dark/light theme">🌙</button>
+      </div>
+    </div>
+    <div class="layout">
+      <aside class="side left">
+        <div class="panel">
+          <div class="panel-title">🔍 Quick Explore</div>
+          <div class="chips">
+            <button class="chip" data-msg="compare moong dal and toor dal">Compare Moong vs Toor</button>
+            <button class="chip" data-msg="best lentils for digestion">Best Lentils</button>
+            <button class="chip" data-msg="foods balancing pitta">Balance Pitta</button>
+            <button class="chip" data-msg="fiber rich cereals">Fiber-Rich Cereals</button>
+          </div>
+        </div>
+      </aside>
+      <main class="center">
+        <div id="listen-banner" class="listen-banner" hidden>Listening… Speak now</div>
+        <div id="chat" class="chat-stream"></div>
+        <div class="planner">
+          <div class="row">
+            <input id="calories" type="number" min="1000" max="4000" placeholder="Target calories (e.g., 2000)">
+            <input id="avoid" type="text" placeholder="Avoid items (comma separated)">
+            <label><input id="veg" type="checkbox"> Vegetarian</label>
+            <button id="plan">Generate Diet Plan</button>
+          </div>
+          <div class="row quick">
+            <button class="quick-btn" data-msg="moong dal nutrition">Moong dal nutrition</button>
+            <button class="quick-btn" data-msg="toor dal ayurvedic properties">Toor dal Ayurveda</button>
+            <button class="quick-btn" data-msg="pitta balancing foods">Pitta balancing foods</button>
+          </div>
+        </div>
+        <div class="composer">
+          <div class="chips">
+            <button class="chip" data-msg="diet plan 2000 calories vegetarian">Diet Plan</button>
+            <button class="chip" data-msg="nutrition breakdown of moong dal">Nutrition Breakdown</button>
+            <button class="chip" data-msg="ayurvedic view of chana">Ayurvedic View</button>
+            <button class="chip" data-msg="low glycemic foods list">Low Glycemic</button>
+          </div>
+        </div>
+        <div class="chat-input">
+          <input id="msg" type="text" placeholder="Ask about grains, lentils, Ayurveda... / अनाज, दालें, आयुर्वेद...">
+          <button id="mic" class="btn circle" title="Voice Input">🎤</button>
+          <button id="send">Send</button>
+        </div>
+      </main>
+      <aside class="side right">
+        <div class="panel">
+          <div class="panel-title">📊 Sources & Insights</div>
+          <div id="sources-panel" class="cards"></div>
+        </div>
+      </aside>
     </div>
   </div>
   <script src="./chat.js"></script>

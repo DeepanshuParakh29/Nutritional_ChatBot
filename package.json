@@ -1,0 +1,16 @@
+{
+  "name": "nutritional-chatbot",
+  "version": "1.0.0",
+  "description": "A nutritional and Ayurvedic chatbot trained on Indian food knowledge base",
+  "main": "api/chat.py",
+  "scripts": {
+    "dev": "python app.py",
+    "start": "python api/chat.py"
+  },
+  "keywords": ["chatbot", "nutrition", "ayurveda", "health", "food"],
+  "author": "Your Name",
+  "license": "MIT",
+  "engines": {
+    "python": "3.9.x"
+  }
+}
