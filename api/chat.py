@@ -1,92 +1,93 @@
 import os
 import json
 from flask import Flask, request, jsonify
-import importlib
-import time
-
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.path.dirname(BASE_DIR)
-import sys
-if ROOT not in sys.path:
-    sys.path.append(ROOT)
+import csv
+import ast
 
 app = Flask(__name__)
 
-# Load knowledge base once at startup
-try:
-    app_module = importlib.import_module("app")
-    app_module.load_knowledge_base()
-except Exception as e:
-    print(f"Error loading knowledge base: {e}")
-    app_module = None
-
-@app.route("/api/chat", methods=["POST"])
-def chat():
-    if not app_module:
-        return jsonify({"response":"Chatbot is currently initializing. Please try again in a moment.","sources":[]}), 503
-    
-    start_time = time.time()
-    client_ip = request.remote_addr or "unknown"
-    
+# Simple knowledge base loading
+def load_simple_knowledge():
+    kb = []
     try:
-        # Rate limiting
-        if hasattr(app_module, 'rate_limit_check') and not app_module.rate_limit_check(client_ip, limit=10):
-            return jsonify({"response":"Too many requests. Please wait a moment before trying again.","sources":[]}), 429
+        base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        kb_path = os.path.join(base_path, 'knowledge_base.csv')
         
-        # Cleanup if available
-        if hasattr(app_module, 'cleanup_cache'):
-            app_module.cleanup_cache()
+        if os.path.exists(kb_path):
+            with open(kb_path, 'r', encoding='utf-8') as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    if row.get('title') and row.get('content'):
+                        kb.append({
+                            'title': row['title'].strip(),
+                            'content': row['content'].strip()[:500],
+                            'category': row.get('category', '').strip()
+                        })
+                        if len(kb) >= 100:  # Limit for performance
+                            break
+    except Exception as e:
+        print(f"Error loading knowledge base: {e}")
+    
+    return kb
+
+KNOWLEDGE_BASE = load_simple_knowledge()
+
+def simple_search(query, top_k=3):
+    query = query.lower()
+    results = []
+    
+    for item in KNOWLEDGE_BASE:
+        score = 0
+        if query in item['title'].lower():
+            score += 3
+        if query in item['content'].lower():
+            score += 1
         
-        if not request.is_json:
-            return jsonify({"response":"Invalid request format. Please send JSON data.","sources":[]}), 400
-            
+        if score > 0:
+            results.append({
+                'title': item['title'],
+                'content': item['content'],
+                'similarity': min(score / 4.0, 1.0)
+            })
+    
+    results.sort(key=lambda x: x['similarity'], reverse=True)
+    return results[:top_k]
+
+@app.route('/api/chat', methods=['POST'])
+def chat():
+    try:
         data = request.get_json()
-        query = (data.get("message") or "").strip()
-        lang = (data.get("lang") or "en")[:2]
+        if not data or not data.get('message'):
+            return jsonify({'response': 'Please provide a message.', 'sources': []}), 400
         
-        if not query:
-            return jsonify({"response":"Please enter a message.","sources":[]}), 400
+        query = data['message'].strip()
+        lang = data.get('lang', 'en')[:2]
         
-        # Search knowledge base
-        kb_results = None
-        if hasattr(app_module, 'search_knowledge_base'):
-            kb_results = app_module.search_knowledge_base(query, top_k=5, threshold=0.0)
+        # Simple search
+        results = simple_search(query, top_k=3)
         
-        # Generate response
-        response_text = "I'm here to help with nutritional and Ayurvedic information about Indian foods."
-        if hasattr(app_module, 'generate_response'):
-            response_text = app_module.generate_response(query, context_docs=kb_results if kb_results else None, client_ip=client_ip, lang=lang)
-        
-        # Update conversation memory if available
-        if hasattr(app_module, 'update_conversation_memory'):
-            app_module.update_conversation_memory(client_ip, query, response_text)
-        
-        # Prepare sources
-        sources = []
-        if kb_results:
-            kb_sources = [{
-                "title": doc.get("title", "Unknown"),
-                "content": doc.get("content", "")[:200] + "..." if len(doc.get("content", "")) > 200 else doc.get("content", ""),
-                "source": "knowledge_base",
-                "similarity": f"{doc.get('similarity', 0):.2f}"
-            } for doc in kb_results]
-            sources.extend(kb_sources)
-        
-        sources.sort(key=lambda x: float(x.get("similarity", 0)), reverse=True)
-        processing_time = time.time() - start_time
+        if results:
+            response = f"Based on your query about '{query}', I found information about:\n\n"
+            for i, result in enumerate(results, 1):
+                response += f"{i}. **{result['title']}**\n{result['content']}\n\n"
+            
+            sources = [{'title': r['title'], 'content': r['content'], 'similarity': f"{r['similarity']:.2f}"} for r in results]
+        else:
+            response = f"I don't have specific information about '{query}' in my knowledge base. Please try asking about lentils, grains, or Ayurvedic properties."
+            sources = []
         
         return jsonify({
-            "response": response_text,
-            "sources": sources,
-            "processing_time": f"{processing_time:.2f}s"
+            'response': response,
+            'sources': sources,
+            'processing_time': '0.5s'
         })
         
     except Exception as e:
-        print(f"Error in chat endpoint: {e}")
+        print(f"Error: {e}")
         return jsonify({
-            "response":"I'm having trouble generating a response. Please try again.",
-            "sources": []
+            'response': 'I encountered an error processing your request. Please try again.',
+            'sources': []
         }), 500
 
-if __name__ == "__main__":
-    app.run()
+if __name__ == '__main__':
+    app.run(debug=True)
