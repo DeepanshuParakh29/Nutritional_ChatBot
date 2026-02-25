@@ -1,0 +1,5 @@
+{
+  "name": "nutritional-chatbot-api",
+  "version": "1.0.0",
+  "main": "chat.py"
+}
