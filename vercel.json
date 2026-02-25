@@ -9,5 +9,10 @@
   ],
   "env": {
     "PYTHON_VERSION": "3.9"
+  },
+  "functions": {
+    "api/chat.py": {
+      "runtime": "python3.9"
+    }
   }
 }
